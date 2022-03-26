@@ -6,7 +6,7 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.Date;
 
-public class ClientServer {
+public class ClientServer implements Runnable {
     public static final String SERVER_ROOT = "./src/com/serversocket/";
     public static final String SERVER_ASSETS_DIR = "server-assets";
 
@@ -28,7 +28,7 @@ public class ClientServer {
     /**
      * Server user request.
      */
-    public void serve() {
+    public void run() {
         try {
             System.out.format("[%s] Accepted\n", new Date());
 

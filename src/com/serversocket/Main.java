@@ -18,7 +18,8 @@ public class Main {
 
             while (true) {
                 ClientServer client = new ClientServer(serverSocket.accept(), configService);
-                client.serve();
+                Thread thread = new Thread(client);
+                thread.start();
             }
 
         } catch (Exception e) {
