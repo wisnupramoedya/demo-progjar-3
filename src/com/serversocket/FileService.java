@@ -14,7 +14,7 @@ public class FileService {
     private String contentType;
     private String contentDisposition;
 
-    private int fileLength;
+    private long fileLength;
     private byte[] fileData;
 
     public boolean fileExist;
@@ -106,7 +106,7 @@ public class FileService {
     }
 
     private void setFileLength() throws IOException {
-        this.fileLength = (int) Files.size(Path.of(this.fetchedFilePath));
+        this.fileLength = Files.size(Path.of(this.fetchedFilePath));
     }
 
     private void setContentType() throws IOException {
@@ -124,8 +124,9 @@ public class FileService {
     }
 
     public void writeFileData(BufferedOutputStream bos) throws IOException {
+        // Write directory list
         if (this.fileData != null) {
-            bos.write(this.fileData, 0, this.fileLength);
+            bos.write(this.fileData, 0, (int) this.fileLength);
             bos.flush();
             return;
         }
@@ -152,7 +153,7 @@ public class FileService {
         return this.contentType;
     }
 
-    public int getFileLength() {
+    public long getFileLength() {
         return this.fileLength;
     }
 }
