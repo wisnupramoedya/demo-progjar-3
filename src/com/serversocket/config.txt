@@ -1,0 +1,4 @@
+IP: 127.0.0.1
+PORT: 80
+wisnupram.xyz: ./src/com/serversocket/root/
+will.com: D:/
