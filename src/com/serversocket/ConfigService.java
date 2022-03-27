@@ -1,7 +1,7 @@
 package com.serversocket;
 
 import java.io.*;
-import java.util.Hashtable;
+import java.util.HashMap;
 
 public class ConfigService {
     private String IP;
@@ -13,11 +13,11 @@ public class ConfigService {
     public static String IP_KEY = "IP";
     public static String PORT_KEY = "PORT";
 
-    private final Hashtable<String, String> configSettings;
+    private final HashMap<String, String> configSettings;
 
     public ConfigService() throws Exception {
         this.configPath = ClientServer.SERVER_ROOT + CONFIG_FILE;
-        this.configSettings = new Hashtable<>();
+        this.configSettings = new HashMap<>();
         setAllConfigs();
     }
 

@@ -17,10 +17,10 @@ public class FileService {
     private long fileLength;
     private byte[] fileData;
 
-    public boolean fileExist;
+    public boolean fileExists;
 
-    public FileService(String domain, int port, String root, String path, String defaultPath, boolean fileExist) throws IOException {
-        this.fileExist = fileExist;
+    public FileService(String domain, int port, String root, String path, String defaultPath, boolean fileExists) throws IOException {
+        this.fileExists = fileExists;
         this.fileData = null;
         String fullPath = root + path;
 
@@ -130,9 +130,18 @@ public class FileService {
             bos.flush();
             return;
         }
+        writeFileData(bos, 0, this.fileLength - 1);
+    }
+
+    /**
+     * Write file data within a given range.
+     */
+    public void writeFileData(BufferedOutputStream bos, long startIndex, long endIndex) throws IOException {
         BufferedInputStream bis = new BufferedInputStream(new FileInputStream(this.fetchedFilePath));
         byte[] buffer = new byte[BUFFER_SIZE];
         int bytesRead;
+
+        bis.skip(startIndex);
 
         while (bis.available() > 0) {
             bytesRead = bis.read(buffer);
