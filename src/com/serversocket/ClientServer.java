@@ -4,7 +4,9 @@ import javax.naming.ConfigurationException;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 public class ClientServer implements Runnable {
     public static final String SERVER_ROOT = "./src/com/serversocket/";
@@ -15,6 +17,7 @@ public class ClientServer implements Runnable {
 
     private final Socket client;
     private final ConfigService configService;
+    private final SimpleDateFormat sdfGMT;
 
     private BufferedReader bufferedReader;
     private BufferedWriter bufferedWriter;
@@ -23,6 +26,8 @@ public class ClientServer implements Runnable {
     public ClientServer(Socket client, ConfigService configService) {
         this.client = client;
         this.configService = configService;
+        this.sdfGMT = new SimpleDateFormat("EEE, MMM d, yyyy hh:mm:ss a z");
+        this.sdfGMT.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
     /**
@@ -51,7 +56,7 @@ public class ClientServer implements Runnable {
                 if (connectionFromRequest.equals("keep-alive")) {
                     client.setKeepAlive(true);
                     client.setTcpNoDelay(true);
-                    client.setSoTimeout(100);
+                    client.setSoTimeout(5000);
                 }
                 FileService fileService = getRequestedFile(requestHeader);
 
@@ -77,6 +82,7 @@ public class ClientServer implements Runnable {
         String responseStatus = (fileService.fileExist) ? "200 OK" : "500 Internal Server Error";
 
         bufferedWriter.write("HTTP/1.1 " + responseStatus + "\r\n");
+        bufferedWriter.write("Date: " + sdfGMT.format(new Date()) + "\r\n");
         bufferedWriter.write("Content-Type: " + fileService.getContentType() + "\r\n");
         bufferedWriter.write("Content-Length: " + fileService.getFileLength() + "\r\n");
         bufferedWriter.write("Content-Disposition: " + fileService.getContentDisposition() + "\r\n");
