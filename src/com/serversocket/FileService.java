@@ -139,12 +139,14 @@ public class FileService {
     public void writeFileData(BufferedOutputStream bos, long startIndex, long endIndex) throws IOException {
         BufferedInputStream bis = new BufferedInputStream(new FileInputStream(this.fetchedFilePath));
         byte[] buffer = new byte[BUFFER_SIZE];
+        long contentLength = endIndex - startIndex + 1;
         int bytesRead;
 
         bis.skip(startIndex);
 
-        while (bis.available() > 0) {
+        while (contentLength > 0) {
             bytesRead = bis.read(buffer);
+            contentLength -= bytesRead;
             bos.write(buffer, 0, bytesRead);
         }
         bos.flush();

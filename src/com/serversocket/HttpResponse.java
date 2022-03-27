@@ -12,7 +12,7 @@ public class HttpResponse {
     private final SimpleDateFormat sdfGMT;
 
     private final BufferedWriter bufferedWriter;
-    private BufferedOutputStream bos;
+    private final BufferedOutputStream bos;
 
     private HashMap<String, String> responseHeader;
 
@@ -39,13 +39,24 @@ public class HttpResponse {
         responseHeader.put("Content-Type", fileService.getContentType());
         responseHeader.put("Content-Length", Long.toString(fileService.getFileLength()));
         responseHeader.put("Content-Disposition", fileService.getContentDisposition());
-
         responseHeader.put("Connection", "close");
-        if (requestHeader.getHeaderWithKey("Connection").equals("keep-alive")) {
+        responseHeader.put("Server", "WW Server Pro");
+
+        if (Objects.equals(requestHeader.getHeaderWithKey("Connection"), "keep-alive")) {
             responseHeader.replace("Connection", "keep-alive");
             responseHeader.put("Keep-Alive", "timeout=" + ClientServer.TIMEOUT + "s, max=1000");
         }
-        responseHeader.put("Server", "WW Server Pro");
+        if (rangeValues != null) {
+            String startIndexStr = rangeValues.get("startIndex");
+            String endIndexStr = rangeValues.get("endIndex");
+
+            long startIndex = (startIndexStr.equals("")) ? 0 : Long.parseLong(startIndexStr);
+            long endIndex = (endIndexStr.equals("")) ? fileService.getFileLength() : Long.parseLong(endIndexStr);
+            responseHeader.put("Content-Range", String.format("%s %d-%d/%d",
+                    rangeValues.get("unit"), startIndex, endIndex, fileService.getFileLength()
+            ));
+            responseHeader.replace("Content-Length", String.valueOf(endIndex - startIndex + 1));
+        }
     }
 
     public HashMap<String, String> getResponseHeader() {

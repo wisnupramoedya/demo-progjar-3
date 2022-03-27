@@ -5,6 +5,7 @@ import java.io.*;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.Date;
+import java.util.Objects;
 
 public class ClientServer implements Runnable {
     public static final String SERVER_ROOT = "./src/com/serversocket/";
@@ -47,7 +48,7 @@ public class ClientServer implements Runnable {
                 connectionFromRequest = requestHeader.getHeaderWithKey("Connection");
 
                 // Adjust client socket if client request has keep alive connection header.
-                if (connectionFromRequest.equals("keep-alive")) {
+                if (Objects.equals(connectionFromRequest, "keep-alive")) {
                     client.setKeepAlive(true);
                     client.setTcpNoDelay(true);
                     client.setSoTimeout((int) (TIMEOUT * 1000));
@@ -67,12 +68,12 @@ public class ClientServer implements Runnable {
         }
         catch (SocketTimeoutException e) {}
         catch (Exception e) {
-            System.err.println("Server error: " + e.getMessage());
+            System.err.printf("[%s] %s\n", e.getClass(), e.getMessage());
         } finally {
             try {
                 client.close();
             } catch (IOException e) {
-                System.err.println("Server error: " + e.getMessage());
+                System.err.printf("[%s] %s\n", e.getClass(), e.getMessage());
             }
             System.out.format("[%s] Closed\n", new Date());
         }
