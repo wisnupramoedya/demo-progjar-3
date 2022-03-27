@@ -68,7 +68,7 @@ public class ClientServer implements Runnable {
         }
         catch (SocketTimeoutException e) {}
         catch (Exception e) {
-            System.err.printf("[%s] %s\n", e.getClass(), e.getMessage());
+            System.err.printf("[%s] %s - %s\n", new Date(), e.getClass(), e.getMessage());
         } finally {
             try {
                 client.close();

@@ -16,6 +16,9 @@ public class HttpResponse {
 
     private HashMap<String, String> responseHeader;
 
+    private long startIndex;
+    private long endIndex;
+
     public HttpResponse(
             RequestHeader requestHeader,
             FileService fileService,
@@ -50,8 +53,8 @@ public class HttpResponse {
             String startIndexStr = rangeValues.get("startIndex");
             String endIndexStr = rangeValues.get("endIndex");
 
-            long startIndex = (startIndexStr.equals("")) ? 0 : Long.parseLong(startIndexStr);
-            long endIndex = (endIndexStr.equals("")) ? fileService.getFileLength() : Long.parseLong(endIndexStr);
+            startIndex = (startIndexStr.equals("")) ? 0 : Long.parseLong(startIndexStr);
+            endIndex = (endIndexStr.equals("")) ? fileService.getFileLength() : Long.parseLong(endIndexStr);
             responseHeader.put("Content-Range", String.format("%s %d-%d/%d",
                     rangeValues.get("unit"), startIndex, endIndex, fileService.getFileLength()
             ));
@@ -63,10 +66,16 @@ public class HttpResponse {
         return this.responseHeader;
     }
 
-    public void writeResponseHeader() throws IOException {
+    private void writeResponseStatus() throws IOException {
         String responseStatus = (fileService.fileExists) ? "200 OK" : "500 Internal Server Error";
+        if (fileService.fileExists && requestHeader.doesHeaderHaveKey("Range")) {
+            responseStatus = "206 Partial Content";
+        }
         bufferedWriter.write("HTTP/1.1 " + responseStatus + "\r\n");
+    }
 
+    public void writeResponseHeader() throws IOException {
+        writeResponseStatus();
         for (Map.Entry<String, String> header : responseHeader.entrySet()) {
             bufferedWriter.write(String.format("%s: %s\r\n", header.getKey(), header.getValue()));
         }
@@ -75,6 +84,9 @@ public class HttpResponse {
     }
 
     public void writeResponseBody() throws IOException {
+        if (requestHeader.doesHeaderHaveKey("Range")) {
+            fileService.writeFileData(bos, startIndex, endIndex);
+        }
         fileService.writeFileData(bos);
     }
 }
